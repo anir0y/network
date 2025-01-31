@@ -17,7 +17,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.21'
 
       # Step 3: Install MinGW-w64 for cross-compilation
       - name: Install MinGW-w64
@@ -28,9 +28,9 @@ jobs:
       # Step 4: Install OpenGL libraries for Windows
       - name: Install OpenGL libraries
         run: |
-          mkdir -p /usr/x86_64-w64-mingw32/lib
-          wget https://www.opengl.org/resources/libraries/glut/glutdlls37beta.zip
-          unzip glutdlls37beta.zip -d /usr/x86_64-w64-mingw32/lib
+          sudo mkdir -p /usr/x86_64-w64-mingw32/lib
+          sudo wget https://www.opengl.org/resources/libraries/glut/glutdlls37beta.zip
+          sudo unzip glutdlls37beta.zip -d /usr/x86_64-w64-mingw32/lib
           sudo cp /usr/x86_64-w64-mingw32/lib/*.dll /usr/x86_64-w64-mingw32/lib/
 
       # Step 5: Build the Go application for Windows
