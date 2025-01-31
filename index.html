@@ -189,7 +189,16 @@
         throw new Error('Invalid IP address.');
       }
 
-      const subnetMask = Array(4).fill(0).map((_, i) => (maskBits >= (i + 1) * 8 ? 255 : (maskBits > i * 8 ? ~((1 << (32 - maskBits)) - 1) >>> (i * 8) & 0xFF : 0)));
+      const subnetMask = Array(4).fill(0).map((_, i) => {
+        if (maskBits >= (i + 1) * 8) {
+          return 255;
+        } else if (maskBits <= i * 8) {
+          return 0;
+        } else {
+          return (255 << (8 - (maskBits % 8))) & 255;
+        }
+      });
+
       const networkAddress = ipParts.map((part, i) => part & subnetMask[i]);
       const broadcastAddress = ipParts.map((part, i) => part | (~subnetMask[i] & 0xFF));
 
