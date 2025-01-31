@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subnet Calculator</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-top: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e9f7ef;
+      border-radius: 4px;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .error {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f8d7da;
+      border-radius: 4px;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .explanation {
+      font-size: 14px;
+      color: #555;
+      margin-top: 5px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      input, select, button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Subnet Calculator</h1>
+    <label for="ip">IP Address:</label>
+    <input type="text" id="ip" placeholder="e.g., 192.168.1.1">
+
+    <label for="type">Input Type:</label>
+    <select id="type">
+      <option value="mask">Subnet Mask (e.g., 24)</option>
+      <option value="hosts">Number of Hosts</option>
+    </select>
+
+    <label for="value">Value:</label>
+    <input type="text" id="value" placeholder="e.g., 24 or 254">
+
+    <button onclick="calculateSubnet()">Calculate</button>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function calculateSubnet() {
+      const ip = document.getElementById('ip').value.trim();
+      const type = document.getElementById('type').value;
+      const value = document.getElementById('value').value.trim();
+
+      // Clear previous output
+      document.getElementById('output').innerHTML = '';
+
+      // Validate inputs
+      if (!ip || !value) {
+        document.getElementById('output').innerHTML = `
+          <div class="error">Please fill in all fields.</div>
+        `;
+        return;
+      }
+
+      try {
+        let result;
+
+        if (type === 'mask') {
+          const maskBits = parseInt(value, 10);
+          if (isNaN(maskBits) || maskBits < 0 || maskBits > 32) {
+            throw new Error('Invalid subnet mask. Must be between 0 and 32.');
+          }
+          result = calculateFromMask(ip, maskBits);
+        } else if (type === 'hosts') {
+          const numHosts = parseInt(value, 10);
+          if (isNaN(numHosts) || numHosts <= 0) {
+            throw new Error('Invalid number of hosts. Must be a positive integer.');
+          }
+          result = calculateFromHosts(ip, numHosts);
+        }
+
+        // Display results with explanations
+        document.getElementById('output').innerHTML = `
+          <div class="result">
+            <strong>IP Address:</strong> ${result.ip}
+            <div class="explanation">The IP address you entered.</div>
+            
+            <strong>Subnet Mask:</strong> /${result.subnetMask} (${result.subnetMaskDotted})
+            <div class="explanation">The subnet mask defines the network portion of the IP address.</div>
+            
+            <strong>Network Address:</strong> ${result.networkAddress}
+            <div class="explanation">The first address in the subnet, used to identify the network.</div>
+            
+            <strong>Broadcast Address:</strong> ${result.broadcastAddress}
+            <div class="explanation">The last address in the subnet, used for broadcasting messages to all devices in the network.</div>
+            
+            <strong>First Usable IP:</strong> ${result.firstUsableIP}
+            <div class="explanation">The first usable IP address for assigning to devices in the network.</div>
+            
+            <strong>Last Usable IP:</strong> ${result.lastUsableIP}
+            <div class="explanation">The last usable IP address for assigning to devices in the network.</div>
+            
+            <strong>Number of Hosts:</strong> ${result.numHosts}
+            <div class="explanation">The total number of usable IP addresses available in the subnet.</div>
+            
+            <strong>Usable Hosts Range:</strong> ${result.usableHostsRange}
+            <div class="explanation">The range of IP addresses that can be assigned to devices in the network.</div>
+          </div>
+        `;
+      } catch (error) {
+        document.getElementById('output').innerHTML = `
+          <div class="error">${error.message}</div>
+        `;
+      }
+    }
+
+    function calculateFromMask(ip, maskBits) {
+      const ipParts = ip.split('.').map(Number);
+      if (ipParts.length !== 4 || ipParts.some(part => part < 0 || part > 255)) {
+        throw new Error('Invalid IP address.');
+      }
+
+      const subnetMask = Array(4).fill(0).map((_, i) => (maskBits >= (i + 1) * 8 ? 255 : (maskBits > i * 8 ? ~((1 << (32 - maskBits)) - 1) >>> (i * 8) & 0xFF : 0)));
+      const networkAddress = ipParts.map((part, i) => part & subnetMask[i]);
+      const broadcastAddress = ipParts.map((part, i) => part | (~subnetMask[i] & 0xFF));
+
+      // Calculate usable IPs
+      const numHosts = Math.pow(2, 32 - maskBits) - 2;
+      let firstUsableIP, lastUsableIP, usableHostsRange;
+
+      if (numHosts > 0) {
+        firstUsableIP = [...networkAddress];
+        incrementIP(firstUsableIP);
+
+        lastUsableIP = [...broadcastAddress];
+        decrementIP(lastUsableIP);
+
+        usableHostsRange = `${firstUsableIP.join('.')} - ${lastUsableIP.join('.')}`;
+      } else {
+        firstUsableIP = 'N/A';
+        lastUsableIP = 'N/A';
+        usableHostsRange = 'No usable hosts';
+      }
+
+      return {
+        ip,
+        subnetMask: maskBits,
+        subnetMaskDotted: subnetMask.join('.'),
+        networkAddress: networkAddress.join('.'),
+        broadcastAddress: broadcastAddress.join('.'),
+        firstUsableIP: firstUsableIP === 'N/A' ? firstUsableIP : firstUsableIP.join('.'),
+        lastUsableIP: lastUsableIP === 'N/A' ? lastUsableIP : lastUsableIP.join('.'),
+        numHosts: numHosts > 0 ? numHosts : 0,
+        usableHostsRange,
+      };
+    }
+
+    function calculateFromHosts(ip, numHosts) {
+      const ipParts = ip.split('.').map(Number);
+      if (ipParts.length !== 4 || ipParts.some(part => part < 0 || part > 255)) {
+        throw new Error('Invalid IP address.');
+      }
+
+      const maskBits = 32 - Math.ceil(Math.log2(numHosts + 2));
+      if (maskBits < 0 || maskBits > 32) {
+        throw new Error('Number of hosts exceeds the maximum possible for an IPv4 subnet.');
+      }
+
+      return calculateFromMask(ip, maskBits);
+    }
+
+    function incrementIP(ipParts) {
+      for (let i = 3; i >= 0; i--) {
+        if (++ipParts[i] <= 255) break;
+        ipParts[i] = 0;
+      }
+    }
+
+    function decrementIP(ipParts) {
+      for (let i = 3; i >= 0; i--) {
+        if (--ipParts[i] >= 0) break;
+        ipParts[i] = 255;
+      }
+    }
+  </script>
+</body>
+</html>
