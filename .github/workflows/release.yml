@@ -1,0 +1,49 @@
+name: Build and Release Windows Executable
+
+on:
+  push:
+    tags:
+      - "v*.*.*"  # Runs only on version tags like v1.0.0
+
+jobs:
+  build:
+    name: Build Windows Executable
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'  # Change as per your requirement
+
+      - name: Build Windows Executable
+        run: |
+          go mod tidy
+          go build -ldflags "-s -w" -o subnet-calculator.exe main.go
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: subnet-calculator
+          path: subnet-calculator.exe
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Built Executable
+        uses: actions/download-artifact@v4
+        with:
+          name: subnet-calculator
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: subnet-calculator.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
