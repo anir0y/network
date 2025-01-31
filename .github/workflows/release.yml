@@ -47,5 +47,5 @@ jobs:
         with:
           files: subnet-calculator.exe
         env:
-          token: ${{ secrets.GH_PAT }}  
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}  
 
