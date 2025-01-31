@@ -1,3 +1,5 @@
+[![Build and Release Windows Executable](https://github.com/anir0y/network/actions/workflows/release.yml/badge.svg)](https://github.com/anir0y/network/actions/workflows/release.yml)
+
 # Understanding Network Subnetting: A Practical Guide
 
 Subnetting is a fundamental concept in networking that allows you to divide a single network into multiple smaller networks, known as subnets. This process enhances network performance, improves security, and makes it easier to manage large networks. In this blog post, we'll explore what subnetting is, why it's important, and how it works with practical examples.
