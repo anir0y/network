@@ -21,14 +21,15 @@ jobs:
 
       - name: Build Windows Executable
         run: |
+          go init subnet-calculator
           go mod tidy
-          go build -ldflags "-s -w" -o subnet-calculator.exe main.go
+          go build -ldflags "-s -w" -o myapp.exe main.go
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: subnet-calculator
-          path: subnet-calculator.exe
+          name: myapp-windows
+          path: myapp.exe
 
   release:
     name: Create GitHub Release
@@ -39,11 +40,12 @@ jobs:
       - name: Download Built Executable
         uses: actions/download-artifact@v4
         with:
-          name: subnet-calculator
+          name: myapp-windows
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: subnet-calculator.exe
+          files: myapp.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
