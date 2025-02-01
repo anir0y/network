@@ -25,13 +25,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mingw-w64
 
-      # Step 4: Install OpenGL libraries for Windows
-      - name: Install OpenGL libraries
+      # Step 4: Set up the environment for MinGW-w64
+      - name: Set up MinGW-w64 environment
         run: |
-          sudo mkdir -p /usr/x86_64-w64-mingw32/lib
-          sudo wget https://www.opengl.org/resources/libraries/glut/glutdlls37beta.zip
-          sudo unzip glutdlls37beta.zip -d /usr/x86_64-w64-mingw32/lib
-          sudo cp /usr/x86_64-w64-mingw32/lib/*.dll /usr/x86_64-w64-mingw32/lib/
+          echo "export PATH=/usr/x86_64-w64-mingw32/bin:$PATH" >> $GITHUB_ENV
 
       # Step 5: Build the Go application for Windows
       - name: Build Windows executable
