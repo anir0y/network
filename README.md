@@ -1,6 +1,10 @@
 # Subnet Calculator
 
-A simple web-based subnet calculator.
+[![Deploy static content to Pages](https://github.com/anir0y/network/actions/workflows/static.yml/badge.svg)](https://github.com/anir0y/network/actions/workflows/static.yml)
+
+A simple web-based subnet calculator with both web interface and Go CLI tool.
+
+🌐 **[Try it online](https://anir0y.in/network/)**
 
 ## Features
 
@@ -11,14 +15,14 @@ A simple web-based subnet calculator.
 
 ## File Structure
 
-The project is organized into the following files and directories:
+### Web Interface
+*   `index.html`: Main HTML structure
+*   `styles.css`: Modern CSS styling with dark mode
+*   `main.js`: JavaScript logic and validation
 
-*   `index.html`: The main HTML file that defines the structure of the web page.
-*   `styles.css`: The CSS file that contains all the styles for the application.
-*   `main.js`: The JavaScript file that contains all the logic for the application.
-*   `README.md`: This file, providing information about the project.
-*   `.gitignore`: Specifies intentionally untracked files to ignore.
-*   `go.mod`, `go.sum`, `main.go`: Go module files (not used in the web interface).
+### Go CLI Tool
+*   `main.go`: Go command-line subnet calculator
+*   `go.mod`, `go.sum`: Go module dependencies
 
 ## Getting Started
 
@@ -36,9 +40,23 @@ You can also download the files directly from the GitHub repository.
 
 ## Usage
 
-1.  Open the `index.html` file in your web browser.
-2.  Enter an IP address and either a subnet mask or the number of hosts.
-3.  Click the "Calculate" button to see the subnet details.
+### Web Interface
+1. Visit [https://anir0y.github.io/network/](https://anir0y.github.io/network/)
+2. Enter an IP address and either a subnet mask or number of hosts
+3. Click "Calculate Subnet" to see the results
+
+### Go CLI Tool
+```bash
+# Install dependencies
+go mod tidy
+
+# Run the CLI tool
+go run main.go
+
+# Or build and run
+go build -o subnet-calc
+./subnet-calc
+```
 
 ## Contributing
 
